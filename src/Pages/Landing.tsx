@@ -1,14 +1,15 @@
 import { log } from "console";
 import React from "react";
-import logo from "../assets/images/logo.svg";
-import main from "../assets/images/main.svg";
-import styled from "styled-components";
+import main from "../assets/images/main.avif";
+import  Wrapper from "../assets/wrappers/LandingPage"
+import {Logo} from "../Components";
+import { Link } from "react-router-dom";
 
 const Landing = () => {
   return (
     <Wrapper>
       <nav>
-        <img src={logo} alt="logo" className="logo" />
+        <Logo />
       </nav>
       <div className="container page">
         {/* info */}
@@ -24,39 +25,12 @@ const Landing = () => {
             personalized reminders. Elevate your job search experience with
             Jobster—where finding your next opportunity becomes a breeze.
           </p>
-          <button className="btn btn-hero">Login/register</button>
+          <Link to="/register" className="btn btn-hero">Login/register</Link>
         </div>
         <img src={main} alt="job hunt" className="img main-img" />
       </div>
     </Wrapper>
   );
 };
-const Wrapper=styled.main`
-nav{
-  width: var(--fluid-width);
-  max-width: var(--max-width);
-  height: var(--nav-height);
-  display: flex;
-  align-items: center;
-}
-.page{
-  min-height: calc(100vh - var(--nav-height));
-  display: grid;
-  align-items: center;
-  margin-top: -3rem;
-}
-h1{
-  font-weight: 700;
-  span{
-    color: var(--clr-primary-5);
-  }
-  p{
-    color: var(--clr-grey-600);
-  }
-  .main-img{
-    display: none;
-  }
-}
-`
 
 export default Landing;
