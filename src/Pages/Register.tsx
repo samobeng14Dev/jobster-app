@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { FormRow, Logo } from "../Components";
 import Wrapper from "../assets/wrappers/RegisterPage";
+import { toast } from 'react-toastify';
 
 interface InitialState {
   name: string;
   email: string;
   password: string;
-  isEnumMember: boolean;
+  isMember: boolean;
 };
 
 const initialState: InitialState = {
   name: "",
   email: "",
   password: "",
-  isEnumMember: true,
+  isMember: true,
 };
 
 const Register = () => {
@@ -25,19 +26,23 @@ const Register = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(values);
+    const { name, email, password,isMember } = values;
+    if(!email || !password ||!isMember && !name){
+      toast.error('Please Fill Out All Fields');
+      return;
+    }
   };
 
   const toggleMembership = () => {
-    setValues({ ...values, isEnumMember: !values.isEnumMember });
+    setValues({ ...values, isMember: !values.isMember });
   }
   return (
     <Wrapper className='full-page'>
       <form className='form' onSubmit={handleSubmit}>
         <Logo />
-        <h3>Login</h3>
+        <h3>{values.isMember?"Login":"Register"}</h3>
         {/* name field */}
-        <FormRow type="text" name="name" value={values.name} handleChange={handleChange} labelText="Name" />
+        {!values.isMember&&<FormRow type="text" name="name" value={values.name} handleChange={handleChange} labelText="Name" />}
         {/* e-mail field */}
         <FormRow type="email" name="email" value={values.email} handleChange={handleChange} labelText="Email" />
         {/* password field */}
@@ -45,6 +50,7 @@ const Register = () => {
         <button type='submit' className='btn btn-block'>
           submit
         </button>
+        <p>testing <button type='button' onClick={toggleMembership}>testing</button></p>
       </form>
     </Wrapper>
   );
