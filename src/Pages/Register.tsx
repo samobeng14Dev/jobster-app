@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { FormRow, Logo } from "../Components";
 import Wrapper from "../assets/wrappers/RegisterPage";
 import { toast } from 'react-toastify';
+import { useSelector, useDispatch } from 'react-redux'; // Import useDispatch
+import { useAppDispatch, useAppSelector } from '../reduxHooks';
+import { store, RootState } from '../store';
+import { loginUser, registerUser } from '../features/user/userSlice';
 
 interface InitialState {
   name: string;
@@ -17,8 +21,14 @@ const initialState: InitialState = {
   isMember: true,
 };
 
-const Register = () => {
+const Register: React.FC = () => {
   const [values, setValues] = useState<InitialState>(initialState);
+  
+  
+  const {user,isLoading}= useAppSelector((store:RootState) => store.user);
+  const dispatch = useAppDispatch();
+
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -26,23 +36,29 @@ const Register = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { name, email, password,isMember } = values;
-    if(!email || !password ||!isMember && !name){
+    const { name, email, password, isMember } = values;
+    if (!email || !password || (!isMember && !name)) {
       toast.error('Please Fill Out All Fields');
       return;
     }
+    if (isMember) {
+      dispatch(loginUser({ email:email, password:password }));
+      return
+    }
+    dispatch(registerUser({ email:email, password:password }));
   };
 
   const toggleMembership = () => {
     setValues({ ...values, isMember: !values.isMember });
-  }
+  };
+
   return (
     <Wrapper className='full-page'>
       <form className='form' onSubmit={handleSubmit}>
         <Logo />
-        <h3>{values.isMember?"Login":"Register"}</h3>
+        <h3>{values.isMember ? "Login" : "Register"}</h3>
         {/* name field */}
-        {!values.isMember&&<FormRow type="text" name="name" value={values.name} handleChange={handleChange} labelText="Name" />}
+        {!values.isMember && <FormRow type="text" name="name" value={values.name} handleChange={handleChange} labelText="Name" />}
         {/* e-mail field */}
         <FormRow type="email" name="email" value={values.email} handleChange={handleChange} labelText="Email" />
         {/* password field */}
