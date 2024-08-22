@@ -1,33 +1,83 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Toast } from "react-toastify/dist/components";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import customFetch from "../../utils/axios";
+import { toast } from "react-toastify";
 
-interface initialStateType {
-    isLoading: boolean;
-    user: string | null;
+interface InitialStateType {
+  isLoading: boolean;
+  user: string | null;
 }
 
-interface loginUserType {
+interface LoginUserType {
+  name?: string;
+  email: string;
+  password: string;
+  isMember?: boolean;
+}
+
+interface RegisterUserType {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface RegisterUserResponse {
+  user: {
+    name: string;
     email: string;
     password: string;
+  };
 }
 
-const initialState: initialStateType = {
-    isLoading: false,
-    user: null,
+const initialState: InitialStateType = {
+  isLoading: false,
+  user: null,
 };
 
-export const registerUser = createAsyncThunk("user/registerUser", async (user: loginUserType, thunkAPI) => {
-    console.log(`Register user: ${user}`);
-});
+export const registerUser = createAsyncThunk<
+  RegisterUserResponse,
+  RegisterUserType,
+  { rejectValue: string }
+>(
+  "user/registerUser",
+  async (user: RegisterUserType, thunkAPI) => {
+    try {
+      const resp = await customFetch.post("/auth/register", user);
+      return resp.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response.data.msg);
+    }
+  }
+);
 
-export const loginUser = createAsyncThunk("user/loginUser", async (user: loginUserType, thunkAPI) => {
+export const loginUser = createAsyncThunk(
+  "user/loginUser",
+  async (user: LoginUserType, thunkAPI) => {
     console.log(`Login user: ${user}`);
-});
+  }
+);
 
 const userSlice = createSlice({
-    name: "user",
-    initialState,
-    reducers: {},
+  name: "user",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(registerUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(registerUser.fulfilled, (state, action: PayloadAction<RegisterUserResponse>) => {
+        const { user } = action.payload;
+        state.isLoading = false;
+        state.user = user.name;
+        toast.success(`Hello There ${user.name}`);
+      })
+      .addCase(registerUser.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.isLoading = false;
+        if (action.payload) {
+          toast.error(action.payload);
+        }
+      });
+  },
 });
 
 export default userSlice.reducer;

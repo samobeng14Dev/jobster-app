@@ -45,7 +45,7 @@ const Register: React.FC = () => {
       dispatch(loginUser({ email:email, password:password }));
       return
     }
-    dispatch(registerUser({ email:email, password:password }));
+    dispatch(registerUser({ name,email,password }));
   };
 
   const toggleMembership = () => {
@@ -63,7 +63,7 @@ const Register: React.FC = () => {
         <FormRow type="email" name="email" value={values.email} handleChange={handleChange} labelText="Email" />
         {/* password field */}
         <FormRow type="password" name="password" value={values.password} handleChange={handleChange} labelText="Password" />
-        <button type='submit' className='btn btn-block'>
+        <button type='submit' className='btn btn-block' disabled={isLoading}>
           submit
         </button>
         <p>testing <button type='button' onClick={toggleMembership}>testing</button></p>
