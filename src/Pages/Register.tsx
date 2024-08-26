@@ -66,7 +66,7 @@ const Register: React.FC = () => {
         <button type='submit' className='btn btn-block' disabled={isLoading}>
           submit
         </button>
-        <p>testing <button type='button' onClick={toggleMembership}>testing</button></p>
+        <p>Testing <button type='button' onClick={toggleMembership}>testing</button></p>
       </form>
     </Wrapper>
   );
