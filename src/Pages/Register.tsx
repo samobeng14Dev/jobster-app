@@ -4,7 +4,7 @@ import Wrapper from "../assets/wrappers/RegisterPage";
 import { toast } from 'react-toastify';
 import { useSelector, useDispatch } from 'react-redux'; // Import useDispatch
 import { useAppDispatch, useAppSelector } from '../reduxHooks';
-import { store, RootState } from '../store';
+import  { store, RootState } from '../store';
 import { loginUser, registerUser } from '../features/user/userSlice';
 
 interface InitialState {
@@ -64,7 +64,7 @@ const Register: React.FC = () => {
         {/* password field */}
         <FormRow type="password" name="password" value={values.password} handleChange={handleChange} labelText="Password" />
         <button type='submit' className='btn btn-block' disabled={isLoading}>
-          submit
+          {isLoading?"Loading":"Submit"}
         </button>
         <p>Testing <button type='button' onClick={toggleMembership}>testing</button></p>
       </form>

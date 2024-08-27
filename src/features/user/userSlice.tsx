@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 interface InitialStateType {
   isLoading: boolean;
-  user: string | null;
+  user: string | null | undefined;
 }
 
 interface LoginUserType {
@@ -23,6 +23,13 @@ interface RegisterUserType {
 interface RegisterUserResponse {
   user: {
     name: string;
+    email: string;
+    password: string;
+  };
+}
+interface LoginUserResponse {
+  user: {
+    name?: string;
     email: string;
     password: string;
   };
@@ -49,12 +56,19 @@ export const registerUser = createAsyncThunk<
   }
 );
 
-
-// Ahercode!@123
-export const loginUser = createAsyncThunk(
+export const loginUser = createAsyncThunk<
+  LoginUserResponse,
+  LoginUserType,
+  { rejectValue: string }
+>(
   "user/loginUser",
   async (user: LoginUserType, thunkAPI) => {
-    console.log(`Login user: ${user}`);
+    try {
+      const resp = await customFetch.post("/auth/login", user);
+      return resp.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response.data.msg);
+    }
   }
 );
 
@@ -74,6 +88,23 @@ const userSlice = createSlice({
         toast.success(`Hello There ${user.name}`);
       })
       .addCase(registerUser.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.isLoading = false;
+        if (action.payload) {
+          toast.error(action.payload);
+        }
+      })
+      .addCase(loginUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(loginUser.fulfilled, (state, action: PayloadAction<LoginUserResponse>) => {
+        const { user } = action.payload;
+        console.log(action.payload);
+        
+        state.isLoading = false;
+        state.user = user.name;
+        toast.success(`Welcome back ${user.name}`);
+      })
+      .addCase(loginUser.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.isLoading = false;
         if (action.payload) {
           toast.error(action.payload);
