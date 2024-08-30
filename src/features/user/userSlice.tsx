@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import customFetch from "../../utils/axios";
 import { toast } from "react-toastify";
-
+import { addUserTolocalStorage, getUserFromLocalStorage,removeUserfronLocalStorage } from "../../utils/localstorage";
 interface InitialStateType {
   isLoading: boolean;
   user: string | null | undefined;
@@ -18,6 +18,7 @@ interface RegisterUserType {
   name: string;
   email: string;
   password: string;
+  isMember?: boolean;
 }
 
 interface RegisterUserResponse {
@@ -37,7 +38,7 @@ interface LoginUserResponse {
 
 const initialState: InitialStateType = {
   isLoading: false,
-  user: null,
+  user: getUserFromLocalStorage(),
 };
 
 export const registerUser = createAsyncThunk<
@@ -85,6 +86,7 @@ const userSlice = createSlice({
         const { user } = action.payload;
         state.isLoading = false;
         state.user = user.name;
+        addUserTolocalStorage(user)
         toast.success(`Hello There ${user.name}`);
       })
       .addCase(registerUser.rejected, (state, action: PayloadAction<string | undefined>) => {
@@ -98,10 +100,11 @@ const userSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action: PayloadAction<LoginUserResponse>) => {
         const { user } = action.payload;
-        console.log(action.payload);
+       
         
         state.isLoading = false;
         state.user = user.name;
+        addUserTolocalStorage(user)
         toast.success(`Welcome back ${user.name}`);
       })
       .addCase(loginUser.rejected, (state, action: PayloadAction<string | undefined>) => {

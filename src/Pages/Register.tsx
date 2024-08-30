@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormRow, Logo } from "../Components";
 import Wrapper from "../assets/wrappers/RegisterPage";
 import { toast } from 'react-toastify';
@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux'; // Import useDispatch
 import { useAppDispatch, useAppSelector } from '../reduxHooks';
 import  { store, RootState } from '../store';
 import { loginUser, registerUser } from '../features/user/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 interface InitialState {
   name: string;
@@ -26,7 +27,9 @@ const Register: React.FC = () => {
   
   
   const {user,isLoading}= useAppSelector((store:RootState) => store.user);
+
   const dispatch = useAppDispatch();
+  const navigate=useNavigate()
 
 
 
@@ -51,7 +54,14 @@ const Register: React.FC = () => {
   const toggleMembership = () => {
     setValues({ ...values, isMember: !values.isMember });
   };
-
+//navigation
+useEffect(()=>{
+  if(user){
+    setTimeout(()=>{
+      navigate("/")
+    },3000)
+  }
+},[user,navigate])
   return (
     <Wrapper className='full-page'>
       <form className='form' onSubmit={handleSubmit}>
@@ -64,7 +74,7 @@ const Register: React.FC = () => {
         {/* password field */}
         <FormRow type="password" name="password" value={values.password} handleChange={handleChange} labelText="Password" />
         <button type='submit' className='btn btn-block' disabled={isLoading}>
-          {isLoading?"Loading":"Submit"}
+          {isLoading?"Loading...":"Submit"}
         </button>
         <p>Testing <button type='button' onClick={toggleMembership}>testing</button></p>
       </form>
