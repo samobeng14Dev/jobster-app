@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { FormRow, Logo } from "../Components";
 import Wrapper from "../assets/wrappers/RegisterPage";
 import { toast } from 'react-toastify';
-import { useSelector, useDispatch } from 'react-redux'; // Import useDispatch
+
 import { useAppDispatch, useAppSelector } from '../reduxHooks';
-import  { store, RootState } from '../store';
+import  { RootState } from '../store';
 import { loginUser, registerUser } from '../features/user/userSlice';
 import { useNavigate } from 'react-router-dom';
 
@@ -55,13 +55,15 @@ const Register: React.FC = () => {
     setValues({ ...values, isMember: !values.isMember });
   };
 //navigation
-useEffect(()=>{
-  if(user){
-    setTimeout(()=>{
-      navigate("/")
-    },3000)
-  }
-},[user,navigate])
+useEffect(() => {
+    console.log("Navigating due to user change:", user);
+    if (user) {
+        setTimeout(() => {
+            navigate("/");
+        }, 3000);
+    }
+}, [user, navigate]);
+
   return (
     <Wrapper className='full-page'>
       <form className='form' onSubmit={handleSubmit}>
