@@ -3,7 +3,7 @@ import { Landing,Register,Error } from './Pages'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {AllJobs,AddJob,Profile,SharedLayout,Stats}  from "./Pages/dashboard"
+import {AllJobs,AddJobs,Profile,SharedLayout,Stats}  from "./Pages/dashboard"
 
 const App=()=> {
   return (
@@ -12,7 +12,7 @@ const App=()=> {
         <Route path="/" element={<SharedLayout/>}>
           <Route index element={<Stats/>}/>
           <Route path='all-jobs'element={<AllJobs />}/>
-          <Route path="add-job" element={<AddJob/>}/>
+          <Route path="add-job" element={<AddJobs/>}/>
           <Route path='profile' element={<Profile/>}/>
           
 

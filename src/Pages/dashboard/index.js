@@ -1,9 +1,8 @@
-import {
-	AllJobs,
-	Profile,
-	SharedLayout,
-	Stats,
-	AddJob,
-} from "../dashboard"
 
-export {AllJobs,AddJob,Profile,SharedLayout,Stats}
+import Stats from "./Stats"
+import AllJobs from "./AllJobs"
+import AddJobs from "./AddJobs"
+import Profile from "./Profile"
+import SharedLayout from "./SharedLayout"
+
+export {AllJobs,AddJobs,Profile,SharedLayout,Stats}
