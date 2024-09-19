@@ -1,10 +1,27 @@
 import Wrapper from '../assets/wrappers/BigSidebar'
+import { useAppDispatch, useAppSelector } from "../reduxHooks";
+import { RootState } from "../store";
+import Logo from './Logo';
+import NavLinks from './NavLinks';
 
 const BigSidebar=() =>{
+  const { isSidebarOpen } = useAppSelector((store: RootState) => store.user);
   return (
     <Wrapper>
-      Big Sidebar
-    </Wrapper>
+			<div
+				className={
+					isSidebarOpen
+						? "sidebar-container "
+						: "sidebar-container show-sidebar"
+				}>
+				<div className='content'>
+					<header>
+						<Logo />
+					</header>
+					<NavLinks />
+				</div>
+			</div>
+		</Wrapper>
   )
 }
 

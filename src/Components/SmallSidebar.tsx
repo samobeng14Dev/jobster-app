@@ -1,7 +1,6 @@
 import Wrapper from "../assets/wrappers/SmallSidebar";
 import { FaTimes } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
-import links from "../utils/Links";
+import NavLinks from "./NavLinks";
 import { toggleSidebar } from "../features/user/userSlice";
 import { useAppSelector, useAppDispatch } from "../reduxHooks";
 import Logo from "./Logo";
@@ -14,6 +13,7 @@ const SmallSidebar: React.FC = () => {
   const toggle = () => {
     dispatch(toggleSidebar());
   };
+
   return (
     <Wrapper>
       <div
@@ -28,24 +28,7 @@ const SmallSidebar: React.FC = () => {
           <header>
             <Logo />
           </header>
-          <div className='nav-links'>
-		{links.map((link) => {
-			const { text, path, id, icon } = link;
-
-			return (
-				<NavLink
-					to={path}
-					className={({ isActive }) =>
-						isActive ? "nav-link active" : "nav-link"
-					}
-					key={id}
-					onClick={toggle}>
-					<span className='icon'>{icon}</span>
-					{text}
-				</NavLink>
-			);
-		})}
-	</div>
+          <NavLinks toggleSidebar={toggle} /> 
         </div>
       </div>
     </Wrapper>
