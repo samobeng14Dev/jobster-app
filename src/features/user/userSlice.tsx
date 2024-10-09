@@ -9,7 +9,7 @@ import {
 interface InitialStateType {
   isLoading: boolean;
   isSidebarOpen: boolean;
-  user: { name?: string; email?: string } | null;
+  user: { name?: string; email?: string;lastName?:string;location?:string } | null;
 }
 
 interface LoginUserType {
