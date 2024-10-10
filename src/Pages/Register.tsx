@@ -56,7 +56,7 @@ const Register: React.FC = () => {
   };
 //navigation
 useEffect(() => {
-    console.log("Navigating due to user change:", user);
+    // console.log("Navigating due to user change:", user);
     if (user) {
         setTimeout(() => {
             navigate("/");
