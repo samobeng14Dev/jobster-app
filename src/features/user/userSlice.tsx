@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import customFetch from "../../utils/axios";
 import { toast } from "react-toastify";
+import { RootState } from "../../store";
 import {
   addUserTolocalStorage,
   getUserFromLocalStorage,
@@ -9,11 +10,18 @@ import {
 interface InitialStateType {
   isLoading: boolean;
   isSidebarOpen: boolean;
-  user: { name?: string; email?: string;lastName?:string;location?:string } | null;
+  user: {
+    name?: string;
+    email?: string;
+    lastName?: string;
+    location?: string;
+    token?:string;
+  } | null;
 }
 
 interface LoginUserType {
   name?: string;
+  lastName?:string;
   email: string;
   password: string;
   isMember?: boolean;
@@ -25,7 +33,13 @@ interface RegisterUserType {
   password: string;
   isMember?: boolean;
 }
+interface updateUserType {
+  name?: string;
+  lastName?:string;
+  email: string;
+  location:string;
 
+}
 interface RegisterUserResponse {
   user: {
     name: string;
@@ -34,6 +48,14 @@ interface RegisterUserResponse {
   };
 }
 interface LoginUserResponse {
+  user: {
+    name?: string;
+    email: string;
+    password: string;
+  };
+}
+
+interface updateUserResponse {
   user: {
     name?: string;
     email: string;
@@ -72,6 +94,57 @@ export const loginUser = createAsyncThunk<
     return thunkAPI.rejectWithValue(error.response.data.msg);
   }
 });
+export const updateUser = createAsyncThunk<
+  updateUserResponse,
+  updateUserType,
+  { rejectValue: string }
+>("user/updateUser", async (user, thunkAPI) => {
+  try {
+    const state = thunkAPI.getState() as RootState; // Cast the state to RootState
+    const token = state.user?.user?.token; // Safely access the token
+
+    if (!token) {
+      return thunkAPI.rejectWithValue("No authentication token found");
+    }
+
+    const resp = await customFetch.patch("/auth/updateUser", user, {
+      headers: {
+        authorization: `Bearer ${token}`, // Use the token
+      },
+    });
+
+    return resp.data;
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      thunkAPI.dispatch(logoutUser());
+      return thunkAPI.rejectWithValue("Unauthorized! Logging Out...");
+    }
+    return thunkAPI.rejectWithValue(error.response?.data?.msg || "An error occurred");
+  }
+});
+// export const updateUser = createAsyncThunk<
+//   LoginUserResponse,
+//   LoginUserType,
+//   { rejectValue: string }
+// >("user/updateUser", async (user, thunkAPI) => {
+//   try {
+//     const resp = await customFetch.patch("/auth/updateUser", user, {
+//       headers: {
+//         authorization: `Bearer ${thunkAPI.getState().user.user.token}`,
+
+//       },
+//     });
+
+//     return resp.data;
+//   } catch (error: any) {
+//     // console.log(error.response);
+//     if (error.response.status === 401) {
+//       thunkAPI.dispatch(logoutUser());
+//       return thunkAPI.rejectWithValue("Unauthorized! Logging Out...");
+//     }
+//     return thunkAPI.rejectWithValue(error.response.data.msg);
+//   }
+// });
 
 //REDUCERS
 const userSlice = createSlice({
@@ -134,8 +207,31 @@ const userSlice = createSlice({
             toast.error(action.payload);
           }
         }
+      )
+      .addCase(updateUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(
+        updateUser.fulfilled,
+        (state, action: PayloadAction<LoginUserResponse>) => {
+          const { user } = action.payload;
+
+          state.isLoading = false;
+          state.user = user;
+          addUserTolocalStorage(user);
+          toast.success(` User updated !`);
+        }
+      )
+      .addCase(
+        updateUser.rejected,
+        (state, action: PayloadAction<string | undefined>) => {
+          state.isLoading = false;
+          if (action.payload) {
+            toast.error(action.payload);
+          }
+        }
       );
   },
 });
-export const { toggleSidebar,logoutUser } = userSlice.actions;
+export const { toggleSidebar, logoutUser } = userSlice.actions;
 export default userSlice.reducer;
