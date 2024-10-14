@@ -1,8 +1,10 @@
-import { FormRow } from "../../Components";
+import { FormRow, FormRowSelect } from "../../Components";
 import Wrapper from "../../assets/wrappers/DashboardFormPage";
 import { useAppSelector, useAppDispatch } from "../../reduxHooks";
 import { RootState } from "../../store";
+import { handleChange } from "../../features/job/jobSlice";
 import { toast } from "react-toastify";
+import { InitialStateType } from "../../features/job/jobSlice"; 
 
 const AddJobs = () => {
   const {
@@ -15,8 +17,9 @@ const AddJobs = () => {
     status,
     statusOptions,
     isEditing,
-    editJobId,
   } = useAppSelector((store: RootState) => store.job);
+
+  const dispatch = useAppDispatch();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,14 +28,13 @@ const AddJobs = () => {
       toast.error("Please Fill Out All Fields");
       return;
     }
-    // further submit logic
+    // Further submit logic
   };
 
-  const handleJobInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
+  const handleJobInput = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const name = e.target.name as keyof InitialStateType; // Assert name as keyof InitialStateType
     const value = e.target.value;
-    console.log(`Name: ${name}, Value: ${value}`);
-    // dispatch action or further state handling
+    dispatch(handleChange({ name, value }));
   };
 
   return (
@@ -41,21 +43,21 @@ const AddJobs = () => {
         <h3>{isEditing ? "edit job" : "add job"}</h3>
 
         <div className="form-center">
-          {/* position */}
+          {/* Position */}
           <FormRow
             type="text"
             name="position"
             value={position}
             handleChange={handleJobInput}
           />
-          {/* company */}
+          {/* Company */}
           <FormRow
             type="text"
             name="company"
             value={company}
             handleChange={handleJobInput}
           />
-          {/* location */}
+          {/* Location */}
           <FormRow
             type="text"
             labelText="job location"
@@ -63,8 +65,22 @@ const AddJobs = () => {
             value={jobLocation}
             handleChange={handleJobInput}
           />
-
-          {/* btn container */}
+          {/* Job Status */}
+          <FormRowSelect
+            name="status"
+            value={status}
+            handleChange={handleJobInput}
+            list={statusOptions}
+          />
+          {/* Job Type */}
+          <FormRowSelect
+            name="jobType"
+            labelText="job type"
+            value={jobType}
+            handleChange={handleJobInput}
+            list={jobTypeOptions}
+          />
+          {/* Button Container */}
           <div className="btn-container">
             <button
               type="button"
