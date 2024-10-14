@@ -41,9 +41,12 @@ const jobSlice = createSlice({
         handleChange: <K extends keyof InitialStateType>(state: InitialStateType, { payload }: PayloadAction<ChangePayload<K>>) => {
             state[payload.name] = payload.value; 
         },
+        clearValues:()=>{
+            return initialState
+        }
     },
 });
 
 
-export const { handleChange } = jobSlice.actions;
+export const { handleChange,clearValues } = jobSlice.actions;
 export default jobSlice.reducer;
