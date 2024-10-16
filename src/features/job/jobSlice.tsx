@@ -17,6 +17,13 @@ export interface InitialStateType {
   editJobId: string;
 }
 
+interface createJobType{
+  position:string;
+  company:string;
+  jobLocation:string;
+  status:string;
+  jobType:string;
+}
 
 // Initial state
 const initialState: InitialStateType = {
@@ -35,8 +42,8 @@ const initialState: InitialStateType = {
 
 // Async thunk to create a job
 export const createJob = createAsyncThunk<
-  any, // You can specify a type here based on the API response
-  any, // Type of the job parameter you pass to the thunk
+  createJobType, // type based on the API response
+  createJobType, // Type of the job parameter you pass to the thunk
   { rejectValue: string }
 >("job/createJob", async (job, thunkAPI) => {
   try {
@@ -52,6 +59,9 @@ export const createJob = createAsyncThunk<
         Authorization: `Bearer ${token}`,
       },
     });
+
+    console.log('create job', resp.data);
+    
 
     thunkAPI.dispatch(clearValues());
     return resp.data;
