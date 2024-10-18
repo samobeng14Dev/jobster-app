@@ -1,7 +1,7 @@
 import { FormRow, FormRowSelect } from "../../Components";
 import Wrapper from "../../assets/wrappers/DashboardFormPage";
 import { useAppSelector, useAppDispatch } from "../../reduxHooks";
-import { RootState } from "../../store";
+import { RootState, store } from "../../store";
 import { handleChange,clearValues,createJob } from "../../features/job/jobSlice";
 import { toast } from "react-toastify";
 import { InitialStateType } from "../../features/job/jobSlice"; 
@@ -18,6 +18,7 @@ const AddJobs = () => {
     statusOptions,
     isEditing,
   } = useAppSelector((store: RootState) => store.job);
+  
 
   const dispatch = useAppDispatch();
 
@@ -36,7 +37,7 @@ const AddJobs = () => {
     const value = e.target.value;
     dispatch(handleChange({ name, value }));
   };
-
+ 
   return (
     <Wrapper>
       <form className="form" onSubmit={handleSubmit}>

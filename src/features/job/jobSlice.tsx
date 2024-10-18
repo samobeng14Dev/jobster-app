@@ -60,7 +60,7 @@ export const createJob = createAsyncThunk<
       },
     });
 
-    console.log('create job', resp.data);
+    // console.log('create job', resp.data);
     
 
     thunkAPI.dispatch(clearValues());
