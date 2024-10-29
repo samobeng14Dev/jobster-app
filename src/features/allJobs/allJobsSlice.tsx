@@ -1,16 +1,16 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import customFetch from "../../utils/axios";
+import { RootState } from "../../store";
 
 // Define the shape of your filters state
 interface FiltersState {
   search: string;
-  searchStatus: "all" | "pending" | "interview" | "declined"; // Define the status options
-  searchType: "all" | "full-time" | "part-time" | "remote"; // Define the job type options
-  sort: "latest" | "oldest" | "a-z" | "z-a"; // Define the sort options
+  searchStatus: "all" | "pending" | "interview" | "declined";
+  searchType: "all" | "full-time" | "part-time" | "remote";
+  sort: "latest" | "oldest" | "a-z" | "z-a";
   sortOptions: string[];
 }
-
 
 interface Job {
   _id: string;
@@ -18,7 +18,7 @@ interface Job {
   company: string;
   jobLocation: string;
   jobType: string;
-  createdAt: string; 
+  createdAt: string;
   status: string;
 }
 
@@ -28,8 +28,8 @@ interface AllJobsState {
   totalJobs: number;
   numOfPages: number;
   page: number;
-  stats: Record<string, any>; 
-  monthlyApplications: number[]; 
+  stats: Record<string, any>;
+  monthlyApplications: number[];
 }
 
 // Initial states
@@ -41,7 +41,7 @@ const initialFiltersState: FiltersState = {
   sortOptions: ["latest", "oldest", "a-z", "z-a"],
 };
 
-const initialState: AllJobsState = {
+const initialState: AllJobsState & FiltersState = {
   isLoading: false,
   jobs: [],
   totalJobs: 0,
@@ -52,14 +52,49 @@ const initialState: AllJobsState = {
   ...initialFiltersState,
 };
 
-// Create the slice
+export const getAllJobs = createAsyncThunk<
+  { jobs: Job[] }, 
+  void, 
+  { rejectValue: string } 
+>(
+  'allJobs/getJobs',
+  async (_, thunkAPI) => {
+    const url = `/jobs`;
+    try {
+      const state = thunkAPI.getState() as RootState;
+      const token = state.user?.user?.token;
+      const resp = await customFetch.get(url, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+      return resp.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.message || "Something went wrong");
+    }
+  }
+);
+
 const allJobsSlice = createSlice({
   name: "allJobs",
   initialState,
-  reducers: {
-    // Define your reducers here if needed
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(getAllJobs.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getAllJobs.fulfilled, (state, action: PayloadAction<{ jobs: Job[] }>) => {
+        state.isLoading = false;
+        state.jobs = action.payload.jobs;
+      })
+      .addCase(getAllJobs.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.isLoading = false;
+        if (action.payload) {
+          toast.error(action.payload);
+        }
+      });
   },
 });
 
-// Export the reducer
 export default allJobsSlice.reducer;

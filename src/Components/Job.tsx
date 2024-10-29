@@ -17,7 +17,7 @@ const Job: React.FC<JobProps> = ({ _id, position, company, jobLocation, jobType,
   return (
     <Wrapper>
       <div>
-        
+        <h2>Jobs</h2>
       </div>
     </Wrapper>
   );
