@@ -32,7 +32,7 @@ const JobsContainer = () => {
       <h5>jobs info</h5>
       <div className="jobs">
         {jobs.map((job) => {
-          return <Job createAt={""} key={job._id} {...job} />;
+          return <Job  key={job._id} {...job} />;
         })}
       </div>
     </Wrapper>

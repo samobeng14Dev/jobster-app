@@ -3,6 +3,7 @@ import customFetch from "../../utils/axios";
 import { RootState } from "../../store";
 import { logoutUser } from "../user/userSlice";
 import { toast } from "react-toastify";
+import { showLoading,hideLoading } from "../allJobs/allJobsSlice";
 
 export interface InitialStateType {
   isLoading: boolean;
