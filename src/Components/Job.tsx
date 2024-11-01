@@ -6,8 +6,9 @@ import { toast } from "react-toastify";
 import JobInfo from "./JobInfo";
 import { FaBriefcase, FaCalendarAlt, FaLocationArrow } from "react-icons/fa";
 import moment from "moment";
+import { deleteJob } from "../features/job/jobSlice";
 
-interface JobProps {
+export interface JobProps {
   _id: string;
   position: string;
   company: string;
@@ -19,6 +20,7 @@ interface JobProps {
 
 const Job: React.FC<JobProps> = ({ _id, position, company, jobLocation, jobType, createdAt, status }) => {
   const date = moment(createdAt).format("MMM Do, YYYY");
+  const dispatch=useAppDispatch();
   return (
     <Wrapper>
 			<header>
@@ -49,7 +51,7 @@ const Job: React.FC<JobProps> = ({ _id, position, company, jobLocation, jobType,
 							type='button'
 							className='btn delete-btn'
 							onClick={() => {
-								console.log("delete  job");
+								dispatch(deleteJob(_id))
 							}}>
 							Delete
 						</button>

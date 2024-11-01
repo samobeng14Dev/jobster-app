@@ -3,7 +3,8 @@ import customFetch from "../../utils/axios";
 import { RootState } from "../../store";
 import { logoutUser } from "../user/userSlice";
 import { toast } from "react-toastify";
-import { showLoading,hideLoading } from "../allJobs/allJobsSlice";
+import { showLoading, hideLoading, getAllJobs } from "../allJobs/allJobsSlice";
+
 
 export interface InitialStateType {
   isLoading: boolean;
@@ -18,12 +19,12 @@ export interface InitialStateType {
   editJobId: string;
 }
 
-interface createJobType{
-  position:string;
-  company:string;
-  jobLocation:string;
-  status:string;
-  jobType:string;
+interface createJobType {
+  position: string;
+  company: string;
+  jobLocation: string;
+  status: string;
+  jobType: string;
 }
 
 // Initial state
@@ -39,7 +40,6 @@ const initialState: InitialStateType = {
   isEditing: false,
   editJobId: "",
 };
-
 
 // Async thunk to create a job
 export const createJob = createAsyncThunk<
@@ -62,7 +62,6 @@ export const createJob = createAsyncThunk<
     });
 
     // console.log('create job', resp.data);
-    
 
     thunkAPI.dispatch(clearValues());
     return resp.data;
@@ -72,6 +71,28 @@ export const createJob = createAsyncThunk<
       return thunkAPI.rejectWithValue("Unauthorized! Logging out...");
     }
     return thunkAPI.rejectWithValue(error.message || "Something went wrong");
+  }
+});
+
+export const deleteJob = createAsyncThunk<
+void,
+string,
+  { rejectValue: string }
+>("job/deleteJob", async (jobId, thunkAPI) => {
+  thunkAPI.dispatch(showLoading());
+  try {
+    const state = thunkAPI.getState() as RootState; // Cast the state to RootState
+    const token = state.user?.user?.token;
+    const resp = await customFetch.delete(`/jobs/${jobId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    thunkAPI.dispatch(getAllJobs());
+    return resp.data;
+  } catch (error: any) {
+    thunkAPI.dispatch(hideLoading());
+    return thunkAPI.rejectWithValue(error.response.data.msg);
   }
 });
 
