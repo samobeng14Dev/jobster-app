@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import JobInfo from "./JobInfo";
 import { FaBriefcase, FaCalendarAlt, FaLocationArrow } from "react-icons/fa";
 import moment from "moment";
-import { deleteJob } from "../features/job/jobSlice";
+import { deleteJob,setEditJob } from "../features/job/jobSlice";
 
 export interface JobProps {
   _id: string;
@@ -43,7 +43,16 @@ const Job: React.FC<JobProps> = ({ _id, position, company, jobLocation, jobType,
 							to='/add-job'
 							className='btn edit-btn'
 							onClick={() => {
-								console.log("edit job");
+								dispatch(
+									setEditJob({
+										editJobId: _id,
+										position,
+										company,
+										jobLocation,
+										jobType,
+										status,
+									})
+								);
 							}}>
 							Edit
 						</Link>

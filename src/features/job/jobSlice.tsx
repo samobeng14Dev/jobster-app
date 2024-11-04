@@ -96,6 +96,41 @@ string,
   }
 });
 
+// Adjusted editJob thunk
+export const editJob = createAsyncThunk<
+  createJobType, // Return type based on the API response
+  { jobId: string; job: createJobType }, // Type of the job parameter you pass to the thunk
+  { rejectValue: string }
+>(
+  'job/editJob',
+  async ({ jobId, job }, thunkAPI) => {
+    try {
+      const state = thunkAPI.getState() as RootState; // Cast the state to RootState
+      const token = state.user?.user?.token;
+
+      if (!token) {
+        return thunkAPI.rejectWithValue("No authentication token found");
+      }
+
+      const resp = await customFetch.patch(`/jobs/${jobId}`, job, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      thunkAPI.dispatch(clearValues());
+      return resp.data; // Ensure this matches createJobType
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.msg || "Something went wrong");
+    }
+  }
+);
+
+// Rest of the code remains the same
+
+
+
+
 // Type that extracts the value type based on the property name
 type ChangePayload<K extends keyof InitialStateType> = {
   name: K;
@@ -116,6 +151,9 @@ const jobSlice = createSlice({
     clearValues: () => {
       return initialState;
     },
+    setEditJob: (state, { payload }) => {
+      return { ...state, isEditing: true, ...payload };
+      },
   },
   extraReducers: (builder) => {
     builder
@@ -131,9 +169,21 @@ const jobSlice = createSlice({
         if (action.payload) {
           toast.error(action.payload);
         }
+      })
+      .addCase(editJob.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(editJob.fulfilled, (state) => {
+        state.isLoading = false;
+        toast.success('Job Modified...');
+      })
+      .addCase(editJob.rejected, (state, action) => {
+        state.isLoading = false;
+        toast.error(action.payload);
       });
-  },
+  }
+  
 });
 
-export const { handleChange, clearValues } = jobSlice.actions;
+export const { handleChange, clearValues,setEditJob } = jobSlice.actions;
 export default jobSlice.reducer;
