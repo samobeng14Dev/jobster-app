@@ -74,6 +74,22 @@ export const getAllJobs = createAsyncThunk<
     }
   }
 );
+// AsyncThunk to show stats
+export const showStats = createAsyncThunk<
+  Record<string, any>,  // Expected return type
+  void,
+  { rejectValue: string }
+>(
+  'allJobs/showStats',
+  async (_, thunkAPI) => {
+    try {
+      const resp = await customFetch.get('/jobs/stats');
+      return resp.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.msg || "Failed to fetch stats");
+    }
+  }
+);
 
 const allJobsSlice = createSlice({
   name: "allJobs",
@@ -100,6 +116,17 @@ const allJobsSlice = createSlice({
         if (action.payload) {
           toast.error(action.payload);
         }
+      }).addCase(showStats.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(showStats.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        state.stats = payload.defaultStats;
+        state.monthlyApplications = payload.monthlyApplications;
+      })
+      .addCase(showStats.rejected, (state, { payload }) => {
+        state.isLoading = false;
+        toast.error(payload); 
       });
   },
 });
