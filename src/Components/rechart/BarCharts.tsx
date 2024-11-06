@@ -9,14 +9,14 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Define the structure of each data point
-interface ChartData {
-  date: string;  // Date format like "Nov 2021"
-  count: number; // Numeric value for the count
+// Define the shape of the monthlyApplications data
+interface MonthlyApplication {
+  date: string;
+  count: number;
 }
 
 interface BarChartComponentProps {
-  data: ChartData[];  // An array of ChartData objects
+  data: MonthlyApplication[];  // Only need the monthlyApplications data here
 }
 
 const BarChartComponent: React.FC<BarChartComponentProps> = ({ data }) => {

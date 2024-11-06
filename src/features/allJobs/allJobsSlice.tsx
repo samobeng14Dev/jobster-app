@@ -1,9 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import customFetch from "../../utils/axios";
-import { RootState } from "../../store";
 
-// Define the shape of your filters state
 interface FiltersState {
   search: string;
   searchStatus: "all" | "pending" | "interview" | "declined";
@@ -22,34 +20,43 @@ interface Job {
   status: string;
 }
 
+// This defines the shape of stats and monthlyApplications after showStats API call
+interface Stats {
+  defaultStats: {
+    declined: number;
+    interview: number;
+    pending: number;
+  };
+  monthlyApplications: {
+    date: string; // e.g., "Oct 2024"
+    count: number; // e.g., 3
+  }[];
+}
+
 interface AllJobsState {
   isLoading: boolean;
   jobs: Job[];
   totalJobs: number;
   numOfPages: number;
   page: number;
-  stats: Record<string, any>;
-  monthlyApplications: number[];
+  stats: Stats['defaultStats']; // Stats is an object with specific properties (declined, interview, pending)
+  monthlyApplications: Stats['monthlyApplications']; // Array of monthly applications
 }
 
-// Initial states
-const initialFiltersState: FiltersState = {
-  search: "",
-  searchStatus: "all",
-  searchType: "all",
-  sort: "latest",
-  sortOptions: ["latest", "oldest", "a-z", "z-a"],
-};
-
+// The combined initial state will include both FiltersState and AllJobsState
 const initialState: AllJobsState & FiltersState = {
   isLoading: false,
   jobs: [],
   totalJobs: 0,
   numOfPages: 1,
   page: 1,
-  stats: {},
+  stats: { declined: 0, interview: 0, pending: 0 },
   monthlyApplications: [],
-  ...initialFiltersState,
+  search: "",
+  searchStatus: "all",
+  searchType: "all",
+  sort: "latest",
+  sortOptions: ["latest", "oldest", "a-z", "z-a"],
 };
 
 export const getAllJobs = createAsyncThunk<
@@ -61,13 +68,8 @@ export const getAllJobs = createAsyncThunk<
   async (_, thunkAPI) => {
     const url = `/jobs`;
     try {
-      const state = thunkAPI.getState() as RootState;
-      const token = state.user?.user?.token;
-      const resp = await customFetch.get(url, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      });
+      
+      const resp = await customFetch.get(url);
       return resp.data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message || "Something went wrong");
@@ -84,7 +86,9 @@ export const showStats = createAsyncThunk<
   async (_, thunkAPI) => {
     try {
       const resp = await customFetch.get('/jobs/stats');
+      console.log("response:", resp.data);
       return resp.data;
+      
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.response?.data?.msg || "Failed to fetch stats");
     }

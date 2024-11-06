@@ -1,5 +1,7 @@
 import React from 'react';
-import Wrapper from "../assets/wrappers/StatItem";  // Path to your Wrapper component
+import Wrapper from '../../assets/wrappers/StatItem';
+
+
 
 // Define types for the props passed to StatItem
 interface StatItemProps {

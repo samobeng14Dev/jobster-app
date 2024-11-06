@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import customFetch from "../../utils/axios";
-import { RootState } from "../../store";
 import { logoutUser } from "../user/userSlice";
 import { toast } from "react-toastify";
 import { showLoading, hideLoading, getAllJobs } from "../allJobs/allJobsSlice";
@@ -48,18 +47,9 @@ export const createJob = createAsyncThunk<
   { rejectValue: string }
 >("job/createJob", async (job, thunkAPI) => {
   try {
-    const state = thunkAPI.getState() as RootState; // Cast the state to RootState
-    const token = state.user?.user?.token;
+    
 
-    if (!token) {
-      return thunkAPI.rejectWithValue("No authentication token found");
-    }
-
-    const resp = await customFetch.post("/jobs", job, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const resp = await customFetch.post("/jobs", job);
 
     // console.log('create job', resp.data);
 
@@ -81,13 +71,7 @@ string,
 >("job/deleteJob", async (jobId, thunkAPI) => {
   thunkAPI.dispatch(showLoading());
   try {
-    const state = thunkAPI.getState() as RootState; // Cast the state to RootState
-    const token = state.user?.user?.token;
-    const resp = await customFetch.delete(`/jobs/${jobId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const resp = await customFetch.delete(`/jobs/${jobId}`,);
     thunkAPI.dispatch(getAllJobs());
     return resp.data;
   } catch (error: any) {
@@ -105,18 +89,9 @@ export const editJob = createAsyncThunk<
   'job/editJob',
   async ({ jobId, job }, thunkAPI) => {
     try {
-      const state = thunkAPI.getState() as RootState; // Cast the state to RootState
-      const token = state.user?.user?.token;
+      
 
-      if (!token) {
-        return thunkAPI.rejectWithValue("No authentication token found");
-      }
-
-      const resp = await customFetch.patch(`/jobs/${jobId}`, job, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const resp = await customFetch.patch(`/jobs/${jobId}`, job);
 
       thunkAPI.dispatch(clearValues());
       return resp.data; // Ensure this matches createJobType

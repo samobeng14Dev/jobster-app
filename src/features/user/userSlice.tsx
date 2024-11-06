@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import customFetch from "../../utils/axios";
 import { toast } from "react-toastify";
-import { RootState } from "../../store";
+
 import {
   addUserTolocalStorage,
   getUserFromLocalStorage,
@@ -100,18 +100,9 @@ export const updateUser = createAsyncThunk<
   { rejectValue: string }
 >("user/updateUser", async (user, thunkAPI) => {
   try {
-    const state = thunkAPI.getState() as RootState; // Cast the state to RootState
-    const token = state.user?.user?.token; // Safely access the token
+    
 
-    if (!token) {
-      return thunkAPI.rejectWithValue("No authentication token found");
-    }
-
-    const resp = await customFetch.patch("/auth/updateUser", user, {
-      headers: {
-        authorization: `Bearer ${token}`, // Use the token
-      },
-    });
+    const resp = await customFetch.patch("/auth/updateUser", user);
 
     return resp.data;
   } catch (error: any) {

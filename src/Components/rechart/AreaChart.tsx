@@ -9,14 +9,14 @@ import {
   Tooltip,
 } from "recharts";
 
-// Define the structure of each data point
+// Define the shape of the data
 interface MonthlyApplication {
-  date: string;  // Date format like "Nov 2021"
-  count: number; // Count is a number
+  date: string;
+  count: number;
 }
 
 interface AreaChartComponentProps {
-  data: MonthlyApplication[];  // An array of MonthlyApplication objects
+  data: MonthlyApplication[];  // Only need the monthlyApplications data here
 }
 
 const AreaChartComponent: React.FC<AreaChartComponentProps> = ({ data }) => {
@@ -27,7 +27,12 @@ const AreaChartComponent: React.FC<AreaChartComponentProps> = ({ data }) => {
         <XAxis dataKey="date" />
         <YAxis allowDecimals={false} />
         <Tooltip />
-        <Area type="monotone" dataKey="count" stroke="#1e3a8a" fill="#3b82f6" />
+        <Area
+          type="monotone"
+          dataKey="count"
+          stroke="#1e3a8a"
+          fill="#3b82f6"
+        />
       </AreaChart>
     </ResponsiveContainer>
   );
