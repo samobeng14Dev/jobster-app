@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import customFetch from "../../utils/axios";
 
-interface FiltersState {
+// Define the shape of filters state
+export interface FiltersState {
   search: string;
   searchStatus: "all" | "pending" | "interview" | "declined";
   searchType: "all" | "full-time" | "part-time" | "remote";
@@ -10,6 +11,7 @@ interface FiltersState {
   sortOptions: string[];
 }
 
+// Define the shape of a job
 interface Job {
   _id: string;
   position: string;
@@ -20,7 +22,7 @@ interface Job {
   status: string;
 }
 
-// This defines the shape of stats and monthlyApplications after showStats API call
+// Define the shape of stats
 interface Stats {
   defaultStats: {
     declined: number;
@@ -33,18 +35,22 @@ interface Stats {
   }[];
 }
 
+// Define the shape of all jobs state
 interface AllJobsState {
   isLoading: boolean;
   jobs: Job[];
   totalJobs: number;
   numOfPages: number;
   page: number;
-  stats: Stats['defaultStats']; // Stats is an object with specific properties (declined, interview, pending)
-  monthlyApplications: Stats['monthlyApplications']; // Array of monthly applications
+  stats: Stats['defaultStats'];
+  monthlyApplications: Stats['monthlyApplications'];
 }
 
-// The combined initial state will include both FiltersState and AllJobsState
-const initialState: AllJobsState & FiltersState = {
+// Combined state type (FiltersState + AllJobsState)
+type InitialStateType = FiltersState & AllJobsState;
+
+// Initial state with both filters and job-related state
+const initialState: InitialStateType = {
   isLoading: false,
   jobs: [],
   totalJobs: 0,
@@ -59,16 +65,16 @@ const initialState: AllJobsState & FiltersState = {
   sortOptions: ["latest", "oldest", "a-z", "z-a"],
 };
 
+// AsyncThunk to fetch all jobs
 export const getAllJobs = createAsyncThunk<
-  { jobs: Job[] }, 
-  void, 
-  { rejectValue: string } 
+  { jobs: Job[] },
+  void,
+  { rejectValue: string }
 >(
-  'allJobs/getJobs',
+  "allJobs/getJobs",
   async (_, thunkAPI) => {
     const url = `/jobs`;
     try {
-      
       const resp = await customFetch.get(url);
       return resp.data;
     } catch (error: any) {
@@ -76,35 +82,52 @@ export const getAllJobs = createAsyncThunk<
     }
   }
 );
-// AsyncThunk to show stats
+
+// AsyncThunk to fetch stats
 export const showStats = createAsyncThunk<
-  Record<string, any>,  // Expected return type
+  Record<string, any>,
   void,
   { rejectValue: string }
 >(
-  'allJobs/showStats',
+  "allJobs/showStats",
   async (_, thunkAPI) => {
     try {
-      const resp = await customFetch.get('/jobs/stats');
-      console.log("response:", resp.data);
+      const resp = await customFetch.get("/jobs/stats");
       return resp.data;
-      
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.response?.data?.msg || "Failed to fetch stats");
     }
   }
 );
 
+// Define the action payload for handleChange
+type ChangePayload<K extends keyof InitialStateType> = {
+  name: K;
+  value: InitialStateType[K];  // Value type corresponds to the type of the property in InitialStateType
+};
+
+// Slice to handle jobs-related actions
 const allJobsSlice = createSlice({
   name: "allJobs",
   initialState,
   reducers: {
-    showLoading:(state)=>{
-      state.isLoading=true;
+    showLoading: (state) => {
+      state.isLoading = true;
     },
-    hideLoading:(state)=>{
-      state.isLoading=false;
-    }
+    hideLoading: (state) => {
+      state.isLoading = false;
+    },
+    // Updated handleChange to handle both FiltersState and AllJobsState
+    handleChange: <K extends keyof InitialStateType>(
+      state: InitialStateType,
+      { payload }: PayloadAction<ChangePayload<K>>
+    ) => {
+      // Dynamically update the correct property in the state based on payload
+      state[payload.name] = payload.value;  // TypeScript knows that `payload.name` is a valid key in InitialStateType
+    },
+    clearFilters: (state) => {
+      return { ...state, ...initialState };
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -120,7 +143,8 @@ const allJobsSlice = createSlice({
         if (action.payload) {
           toast.error(action.payload);
         }
-      }).addCase(showStats.pending, (state) => {
+      })
+      .addCase(showStats.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(showStats.fulfilled, (state, { payload }) => {
@@ -130,9 +154,11 @@ const allJobsSlice = createSlice({
       })
       .addCase(showStats.rejected, (state, { payload }) => {
         state.isLoading = false;
-        toast.error(payload); 
+        toast.error(payload || "Failed to fetch stats");
       });
   },
 });
-export const {showLoading,hideLoading}=allJobsSlice.actions
+
+export const { showLoading, hideLoading, handleChange, clearFilters } = allJobsSlice.actions;
+
 export default allJobsSlice.reducer;
